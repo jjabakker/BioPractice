@@ -1,28 +1,26 @@
 import pprint
 
-GeneticCode = {"UUU": "F", "UUC": "F", "UUA": "L",    "UUG": "L",
-               "UCU": "S", "UCC": "S", "UCA": "S",    "UCG": "S",
+GeneticCode = {"UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
+               "UCU": "S", "UCC": "S", "UCA": "S", "UCG": "S",
                "UAU": "Y", "UAC": "Y", "UAA": "STOP", "UAG": "STOP",
                "UGU": "C", "UGC": "C", "UGA": "STOP", "UGG": "W",
-               "CUU": "L", "CUC": "L", "CUA": "L",    "CUG": "L",
-               "CCU": "P", "CCC": "P", "CCA": "P",    "CCG": "P",
-               "CAU": "H", "CAC": "H", "CAA": "Q",    "CAG": "Q",
-               "CGU": "R", "CGC": "R", "CGA": "R",    "CGG": "R",
-               "AUU": "I", "AUC": "I", "AUA": "I",    "AUG": "M",
-               "ACU": "T", "ACC": "T", "ACA": "T",    "ACG": "T",
-               "AAU": "N", "AAC": "N", "AAA": "K",    "AAG": "K",
-               "AGU": "S", "AGC": "S", "AGA": "R",    "AGG": "R",
-               "GUU": "V", "GUC": "V", "GUA": "V",    "GUG": "V",
-               "GCU": "A", "GCC": "A", "GCA": "A",    "GCG": "A",
-               "GAU": "D", "GAC": "D", "GAA": "E",    "GAG": "E",
-               "GGU": "G", "GGC": "G", "GGA": "G",    "GGG": "G"}
-
+               "CUU": "L", "CUC": "L", "CUA": "L", "CUG": "L",
+               "CCU": "P", "CCC": "P", "CCA": "P", "CCG": "P",
+               "CAU": "H", "CAC": "H", "CAA": "Q", "CAG": "Q",
+               "CGU": "R", "CGC": "R", "CGA": "R", "CGG": "R",
+               "AUU": "I", "AUC": "I", "AUA": "I", "AUG": "M",
+               "ACU": "T", "ACC": "T", "ACA": "T", "ACG": "T",
+               "AAU": "N", "AAC": "N", "AAA": "K", "AAG": "K",
+               "AGU": "S", "AGC": "S", "AGA": "R", "AGG": "R",
+               "GUU": "V", "GUC": "V", "GUA": "V", "GUG": "V",
+               "GCU": "A", "GCC": "A", "GCA": "A", "GCG": "A",
+               "GAU": "D", "GAC": "D", "GAA": "E", "GAG": "E",
+               "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G"}
 
 FromThreeToOneTable = {'CYS': 'C', 'ASP': 'D', 'SER': 'S', 'GLN': 'Q', 'LYS': 'K',
                        'ILE': 'I', 'PRO': 'P', 'THR': 'T', 'PHE': 'F', 'ASN': 'N',
                        'GLY': 'G', 'HIS': 'H', 'LEU': 'L', 'ARG': 'R', 'TRP': 'W',
                        'ALA': 'A', 'VAL': 'V', 'GLU': 'E', 'TYR': 'Y', 'MET': 'M'}
-
 
 FromOneToThreeTable = {'C': 'CYS', 'D': 'ASP', 'S': 'SER', 'Q': 'GLN', 'K': 'LYS',
                        'I': 'ILE', 'P': 'PRO', 'T': 'THR', 'F': 'PHE', 'N': 'ASN',
@@ -48,7 +46,6 @@ def get_1_letter_code(am3):
 
 
 def make_reverse_code_table():
-
     for codon in GeneticCode:
         am_acid = GeneticCode[codon]
         if am_acid not in TranslationCountTable:
@@ -63,17 +60,15 @@ def make_reverse_code_table():
     pp.pprint(ReverseGeneticCode)
 
 
-def translate_protein(sequence):
-
-
+def translate_protein(seq):
     aminostring = ""
-    alen = len(sequence)
+    alen = len(seq)
     alen = alen // 3
 
     try:
         for i in range(alen):
-            str = sequence[i*3:i*3+3]
-            aa = GeneticCode[str]
+            str1 = seq[i * 3:i * 3 + 3]
+            aa = GeneticCode[str1]
             aminostring = aminostring + aa
     except:
         return ''
@@ -81,18 +76,15 @@ def translate_protein(sequence):
     return aminostring
 
 
-def how_cany_combinations(sequence):
-
-    am_acids = sequence.split('-')
+def how_many_combinations(seq):
+    am_acids = seq.split('-')
     n = 1
     for aa in am_acids:
-
         n = n * TranslationCountTable[aa.upper()]
     return n
 
 
 def add_next_level(base_list, list_to_add):
-
     combine_list = []
 
     for bl in base_list:
@@ -101,6 +93,7 @@ def add_next_level(base_list, list_to_add):
             combine_list.append(new)
 
     return combine_list
+
 
 def find_coding_sequences(dna_sequence, amino_sequence):
     codon_list = []
@@ -118,7 +111,6 @@ def find_coding_sequences(dna_sequence, amino_sequence):
     # Then make the combinations
     nr_aminoacids = len(codon_list)
 
-
     dna_list = codon_list[0]
 
     for i in range(1, nr_aminoacids):
@@ -126,30 +118,27 @@ def find_coding_sequences(dna_sequence, amino_sequence):
 
     for s1 in codon_list[0]:
         for s2 in codon_list[1]:
-            str = s1 + s2
-            rna_sequences.append(str)
+            str1 = s1 + s2
+            rna_sequences.append(str1)
 
     dna_sequences = []
     for rna in rna_sequences:
-        str = rna.replace('U', 'T')
-        dna_sequences.append(str)
-
+        str1 = rna.replace('U', 'T')
+        dna_sequences.append(str1)
     for dna in dna_sequences:
         if dna_sequence.find(dna):
             print(f'Found {dna}')
 
 
 def print_long_string(sequence, width):
-
     seqlen = len(sequence)
 
     index = 0
-    while seqlen > 0 :
+    while seqlen > 0:
         prlen = min(width, seqlen)
-        print(sequence[index:index+prlen])
+        print(sequence[index:index + prlen])
         index += prlen
         seqlen -= prlen
-
 
 
 if __name__ == "__main__":
@@ -160,9 +149,9 @@ if __name__ == "__main__":
 
     print(translate_protein('AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA'))
     # output should be MAMAPRTEINSTRING
-    print_long_string((translate_protein(sequence)),80)
+    print_long_string((translate_protein(sequence)), 80)
 
-    print(f'There are {how_cany_combinations("V-K-L-F-P-Y-F-N-Q-W")}, combinations for string "V-K-L-F-P-Y-F-N-Q-W"')
+    print(f'There are {how_many_combinations("V-K-L-F-P-Y-F-N-Q-W")}, combinations for string "V-K-L-F-P-Y-F-N-Q-W"')
 
     m = 1
 
@@ -170,7 +159,7 @@ if __name__ == "__main__":
     s = get_1_letter_code(s)
     s = get_3_letter_code('J')
 
-    find_coding_sequences('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA','LALA')
+    find_coding_sequences('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA', 'LALA')
 
     print(translate_protein('AUGGCC'))
     print(translate_protein('GGCCAU'))
@@ -179,4 +168,5 @@ if __name__ == "__main__":
 
     print(translate_protein('AUGWWW'))
 
-    print_long_string('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDD',30)
+    print_long_string('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDD',
+                      30)
