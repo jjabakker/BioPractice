@@ -9,7 +9,7 @@ import Bio
 import pprint
 
 
-def find_nr_of_repeats(seq_to_search, pattern):
+def pattern_count(seq_to_search, pattern):
     # myseq: Seq = Seq (seq_to_search, IUPAC.unambiguous_dna)
 
     positions = []
@@ -20,7 +20,7 @@ def find_nr_of_repeats(seq_to_search, pattern):
     return len(positions), positions
 
 
-def find_most_occuring_kmer(seq_to_search, kmer):
+def frequent_words(seq_to_search, kmer):
     """
 
     Find the most frequent occurring k-mer, using a naive approach
@@ -48,7 +48,7 @@ def find_most_occuring_kmer(seq_to_search, kmer):
             continue
         else:
             strings_searched.add(str_search)
-            nr_found, positions = find_nr_of_repeats(seq_to_search, seq_to_search[startindex:startindex + kmer])
+            nr_found, positions = pattern_count(seq_to_search, seq_to_search[startindex:startindex + kmer])
             if nr_found > maxcount:
                 max_strings_found = []
                 max_strings_found.append([seq_to_search[startindex:startindex + kmer], positions])
@@ -64,7 +64,7 @@ def find_most_occuring_kmer(seq_to_search, kmer):
 
 
 def wrapper_for_find_most_occurring_kmer(sequence, kmer):
-    (n, seqs_found) = find_most_occuring_kmer(sequence, kmer)
+    (n, seqs_found) = frequent_words(sequence, kmer)
     print('\n')
     if n > 1:
         for seq_found in seqs_found:
@@ -100,7 +100,7 @@ def find_highest_kmer_and_segment(seq, segment_len, kmer_length):
     maxindex = 0
 
     while i + segment_len < seqlen:
-        count, max_strings_found = find_most_occuring_kmer(seq[i:i + segment_len], kmer_length)
+        count, max_strings_found = frequent_words(seq[i:i + segment_len], kmer_length)
         if count > maxcount:
             maxcount = count
             maxindex = i
@@ -166,15 +166,58 @@ def analyse_ori(ori):
     wrapper_for_find_most_occurring_kmer(ori, 9)
 
     genome = SeqIO.read('vibrio_cholerae.fasta.txt', 'fasta')
-    count, positions = find_nr_of_repeats(genome.seq, "ATGATCAAG")
-    count, positions = find_nr_of_repeats(genome.seq, "CTTGATCAT")
+    count, positions = pattern_count(genome.seq, "ATGATCAAG")
+    count, positions = pattern_count(genome.seq, "CTTGATCAT")
 
     m = 1
 
 
 def main():
-    print(find_nr_of_repeats("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "AAA"))
-    print(find_nr_of_repeats("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "CCC"))
+    print(pattern_count("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "AAA"))
+    print(pattern_count("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "GATA"))
+    print(pattern_count("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "AA"))
+    print('\n\n')
+
+
+    # Find the occurence of kmers is
+    genome = SeqIO.read('ori.fasta.txt', 'fasta')
+
+    k = 3
+    count, max_strings_found = frequent_words(str(genome.seq), k)
+    print(f'The maximum time a {k}-kmer was found is {count}')
+    print(f'The number of patterns for that maximum is {len(max_strings_found)}')
+    print('The positions are:\n')
+    for l in range(len(max_strings_found)):
+        print(max_strings_found[l])
+    print('\n')
+
+    k = 5
+    count, max_strings_found = frequent_words(str(genome.seq), k)
+    print(f'The maximum time a {k}-kmer was found is {count}')
+    print(f'The number of patterns for that maximum is {len(max_strings_found)}')
+    print('The positions are:\n\n')
+    for l in range(len(max_strings_found)):
+        print(max_strings_found[l])
+    print('\n')
+
+    k = 7
+    count, max_strings_found = frequent_words(str(genome.seq), k)
+    print(f'The maximum time a {k}-kmer was found is {count}')
+    print(f'The number of patterns for that maximum is {len(max_strings_found)}')
+    print('The positions are:\n\n')
+    for l in range(len(max_strings_found)):
+        print(max_strings_found[l])
+    print('\n')
+
+
+    k = 9
+    count, max_strings_found = frequent_words(str(genome.seq), k)
+    print(f'The maximum time a {k}-kmer was found is {count}')
+    print(f'The number of patterns for that maximum is {len(max_strings_found)}')
+    print('The positions are:\n\n')
+    for l in range(len(max_strings_found)):
+        print(max_strings_found[l])
+    print('\n')
 
     '''
     wrapper_for_find_most_occurring_kmer('TAAACGTGAGAGAAACGTGCTGATTACACTTGTTCGTGTGGTAT', 2)
@@ -186,7 +229,7 @@ def main():
     wrapper_for_find_most_occurring_kmer('TAAACGTGAGAGAAACGTGCTGATTACACTTGTTCGTGTGGTAT', 8)
     '''
 
-    count, positions = find_nr_of_repeats("GACGATATACGACGATA", "ATA")
+    count, positions = pattern_count("GACGATATACGACGATA", "ATA")
     print(positions)
 
     myseq = Seq("CCAGATC", IUPAC.unambiguous_dna)
