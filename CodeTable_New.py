@@ -72,7 +72,7 @@ def translate_protein(seq):
             str1 = seq[i * 3:i * 3 + 3]
             aa = GeneticCode[str1]
             if aa != 'STOP':
-                aminostring += aa
+                aminostring += str1
             else:
                 return aminostring
     except:

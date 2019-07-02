@@ -6,6 +6,7 @@ from Bio.Data import CodonTable
 from Bio import SeqIO
 from Bio import Align
 import Bio
+import pprint
 
 
 def find_nr_of_repeats(seq_to_search, pattern):
