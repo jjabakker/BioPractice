@@ -1,4 +1,6 @@
 import pprint
+from Bio.Alphabet import IUPAC
+from Bio.Seq import Seq, MutableSeq
 
 GeneticCode = {"UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
                "UCU": "S", "UCC": "S", "UCA": "S", "UCG": "S",
@@ -69,8 +71,12 @@ def translate_protein(seq):
         for i in range(alen):
             str1 = seq[i * 3:i * 3 + 3]
             aa = GeneticCode[str1]
-            aminostring = aminostring + aa
+            if aa != 'STOP':
+                aminostring += str1
+            else:
+                return aminostring
     except:
+        pass
         return ''
 
     return aminostring
@@ -98,37 +104,37 @@ def add_next_level(base_list, list_to_add):
 def find_coding_sequences(dna_sequence, amino_sequence):
     codon_list = []
     i = 0
-
     rna_sequences = []
 
-    # First get the codons for each amino acids
-
+    # First get the codons that code for each amino acids
     for aa in amino_sequence:
         codons = ReverseGeneticCode[aa.upper()]
         codon_list.append(ReverseGeneticCode[aa.upper()])
         i += 1
 
-    # Then make the combinations
+    # Then make the combinations of these codons
     nr_aminoacids = len(codon_list)
-
-    dna_list = codon_list[0]
-
+    rna_list = codon_list[0]
     for i in range(1, nr_aminoacids):
-        dna_list = add_next_level(dna_list, codon_list[i])
+        rna_list = add_next_level(rna_list, codon_list[i])
 
-    for s1 in codon_list[0]:
-        for s2 in codon_list[1]:
-            str1 = s1 + s2
-            rna_sequences.append(str1)
-
+    # Now change the found RNA sequences into DNA sequences
     dna_sequences = []
-    for rna in rna_sequences:
+    for rna in rna_list:
         str1 = rna.replace('U', 'T')
         dna_sequences.append(str1)
+
+    # Then see if you can find it in the given DNA sequence
+    myseq = Seq(dna_sequence, IUPAC.unambiguous_dna)
     for dna in dna_sequences:
-        if dna_sequence.find(dna):
+        if myseq.find(dna) != -1:
             print(f'Found {dna}')
 
+    # Then see if you can find it in the reverse complement DNA sequence
+    myseq = myseq.reverse_complement()
+    for dna in dna_sequences:
+        if myseq.find(dna) != -1:
+            print(f'Found {dna}')
 
 def print_long_string(sequence, width):
     seqlen = len(sequence)
@@ -144,12 +150,14 @@ def print_long_string(sequence, width):
 if __name__ == "__main__":
     make_reverse_code_table()
 
-    f = open("sequence_to translate.txt", "r")
-    sequence = f.read()
+
 
     print(translate_protein('AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA'))
     # output should be MAMAPRTEINSTRING
-    print_long_string((translate_protein(sequence)), 80)
+
+    f = open("sequence_to_translate_3.txt", "r")
+    seq = f.read()
+    print_long_string(translate_protein(seq), 80)
 
     print(f'There are {how_many_combinations("V-K-L-F-P-Y-F-N-Q-W")}, combinations for string "V-K-L-F-P-Y-F-N-Q-W"')
 
@@ -159,14 +167,21 @@ if __name__ == "__main__":
     s = get_1_letter_code(s)
     s = get_3_letter_code('J')
 
-    find_coding_sequences('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA', 'LALA')
+    '''
+    f = open("extra_data_set.txt", "r")
+    seq = f.read()
+
+    find_coding_sequences(seq, 'KEVFEPHYY')
+    '''
+
+    print('\n\n\n')
+    find_coding_sequences('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA', 'MA')
+    print('\n\n\n')
 
     print(translate_protein('AUGGCC'))
     print(translate_protein('GGCCAU'))
     print(translate_protein('AUGGCC'))
-    print(translate_protein('WWW'))
 
-    print(translate_protein('AUGWWW'))
 
     print_long_string('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDD',
                       30)
