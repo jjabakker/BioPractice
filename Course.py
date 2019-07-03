@@ -8,8 +8,8 @@ from Bio import Align
 import Bio
 import pprint
 
-def print_header(page, text=''):
 
+def print_header(page, text=''):
     print('\n')
     print('-' * 80)
     if page != 0:
@@ -72,32 +72,6 @@ def frequent_words(seq_to_search, kmer):
     return max_count, max_strings_found
 
 
-'''
-def find_highest_kmer_and_segment(seq, segment_len, kmer_length):
-    """
-    The sequence is cut in parts of seqment_length and in each part the highest repeat occurrence is determined
-    :param segment_len:
-    :param kmer_length:
-    :return:
-    """
-
-    seqlen = len(seq)
-    i = 0
-    maxcount = 0
-    maxindex = 0
-
-    while i + segment_len < seqlen:
-        count, max_strings_found = frequent_words(seq[i:i + segment_len], kmer_length)
-        if count > maxcount:
-            maxcount = count
-            maxindex = i
-            print(maxcount, maxindex)
-        i += segment_len
-
-    print_frequent_words(seq[maxindex:maxindex + segment_len], kmer_length)
-'''
-
-
 def find_max_GC(sequence: object, block_size: object = 0):
     """
     Find the AT percentages in segments of 500
@@ -121,8 +95,7 @@ def find_max_GC(sequence: object, block_size: object = 0):
     return maxperc, maxindex
 
 
-def print_sequence(seq, line_length, has_header = False):
-
+def print_sequence(seq, line_length, has_header=False):
     i = 0
     if has_header:
         header = ""
@@ -132,7 +105,7 @@ def print_sequence(seq, line_length, has_header = False):
         print(header)
         header = int(line_length / 10) * '0123456789'
         print(header)
-        print('-'*line_length)
+        print('-' * line_length)
 
     while len(seq) > line_length:
         print(seq[:line_length])
@@ -141,10 +114,13 @@ def print_sequence(seq, line_length, has_header = False):
         print(seq)
 
 
-def find_clump(sequence, interval, kmer):
+'''
+Not certain this works well. For one thing you need to do something abuout the boundaries
+'''
 
+def find_clump(sequence, interval, kmer):
     seqlen = len(sequence)
-    start  = 0
+    start = 0
     max_count = 0
     result = []
 
@@ -152,8 +128,8 @@ def find_clump(sequence, interval, kmer):
     while start < seqlen:
         if interval > len(sequence[start:]):
             interval = len(sequence[start:])
-        count, max_strings_found = frequent_words(sequence[start:start+interval], kmer)
-        #print (start, count, max_strings_found)
+        count, max_strings_found = frequent_words(sequence[start:start + interval], kmer)
+        # print (start, count, max_strings_found)
         if count > max_count:
             result.append([start, count])
             max_count = count
@@ -175,9 +151,7 @@ def find_clump(sequence, interval, kmer):
     return result
 
 
-
 def skew_diagram(sequence):
-
     index = 0
     skew = 0
     skew_min_index = 0
@@ -199,39 +173,92 @@ def skew_diagram(sequence):
     return skew_min, skew_min_index, skew_max, skew_max_index
 
 
-
-def hamming_distance(seq1, seq2):
-
+def hamming_distance(pattern1, pattern2):
     ham = 0
-    seqlen = len(seq1)
-    if  seqlen != len(seq2):
-        return (-1)
+    patlen = len(pattern1)
+    if patlen != len(pattern2):
+        return -1
     else:
         i = 0
-        for i in range(seqlen):
-            if seq1[i] != seq2[i]:
+        for i in range(patlen):
+            if pattern1[i] != pattern2[i]:
                 ham += 1
         return ham
 
 
-
-def approxiate_match(sequence, pattern, ham):
-
+def approximate_pattern_count(sequence, pattern, ham):
     count = 0
     list = []
-    for i in range(len(sequence)-len(pattern)):
-        pattern1 = sequence[i:i+len(pattern)]
+    i = 0
+
+    lenpat = len(pattern)
+    lenseq = len(sequence)
+
+    while i + lenpat <= lenseq:
+        pattern1 = sequence[i:i+lenpat]
         if hamming_distance(pattern, pattern1) <= ham:
             count += 1
             list.append(pattern1)
+        i += 1
     return count, list
 
 
-def main():
+def compute_count1(sequence, pattern):
+    return approximate_pattern_count(sequence, pattern, 1)
 
+def compute_count2(sequence, pattern):
+    return approximate_pattern_count(sequence, pattern, 2)
+
+def frequent_words_with_mismatches(seq_to_search, kmer, ham):
+
+
+    max_count = 0
+    strings_searched = set()
+    max_strings_found = []
+
+    for startindex in range(0, len(seq_to_search) - kmer + 1):
+        pattern = seq_to_search[startindex:startindex + kmer]
+
+        # If you have already searched for this string, do not do it again
+        if pattern in strings_searched:
+            continue
+        else:
+            strings_searched.add(pattern)
+            sequence = seq_to_search
+            nr_found, positions = approximate_pattern_count(sequence, pattern, ham)
+            if nr_found == 1:
+                pass
+            else:
+                if nr_found > 1:
+                    if nr_found > max_count:
+                        max_strings_found.append([pattern, positions])
+                        max_count = nr_found
+                        index = startindex
+                    elif nr_found == max_count:
+                        max_strings_found.append([pattern, positions])
+
+
+
+    #
+    # Now we have a number of lists with kmers that have the correct hamming distance to the starting pattern,
+    # but they may not have the correct hamming distance with respect to each other
+    # You could solve this by comparing hamming distance pairwise and eliminating strings that cause problems
+    #
+
+    '''
+    # debug
+    d = {}
+    list = max_strings_found[5]
+    for l1 in range(len(list[1])):
+        for l2 in range(len(list[1])):
+
+            d[l1,l2] = hamming_distance(list[1][l1], list[1][l2])
+    '''
+    return max_count, max_strings_found
+
+def main():
     genome_vc = SeqIO.read('vibrio_cholerae.fasta.txt', 'fasta')
     ori_vc = SeqIO.read('ori_vibrio_cholerae.fasta.txt', 'fasta')
-
 
     #
     # Test the pattern_count function to determine how often a pattern occurs in a sequence
@@ -239,7 +266,7 @@ def main():
 
     print('Start of test script\n\n')
 
-    print_header(7,'Determine how often a pattern occurs in a sequence')
+    print_header(7, 'Determine how often a pattern occurs in a sequence')
 
     seq = "GACCATCAAAACTGATAAACTACTTAAAAATCAGT"
     pattern = "A"
@@ -334,7 +361,6 @@ def main():
     myseq = Seq("ATGATCAAG", IUPAC.unambiguous_dna)
     print(f'The reverse complement of {myseq} is: {myseq.reverse_complement()}\n')
 
-
     #
     # Page 13 How many times does ATGATCAAG occur in Vibrio cholerae?
     #
@@ -342,14 +368,13 @@ def main():
     print_header(13, 'How many times does ATGATCAAG occur in Vibrio cholerae?')
 
     pattern = 'ATGATCAAG'
-    n, positions = pattern_count(genome_vc.seq,pattern)
+    n, positions = pattern_count(genome_vc.seq, pattern)
     print(f'The patten \'{pattern}] occurs {n} times, on positions')
     print(positions)
 
     #
     # Page 14 Find the 9-mers in ori_thermotoga
     #
-
 
     print_header(14, 'Find the 9-mers in ori_thermotoga')
     k = 9
@@ -365,17 +390,17 @@ def main():
         print('\t', max_strings_found[l])
     print('\n')
 
-    if (False):
+    if False:
 
-    #
-    # Page 14 Find the highest number of k-mers in blocks of length 500
-    #
+        #
+        # Page 14 Find the highest number of k-mers in blocks of length 500
+        #
 
         interval = 1000
         print_header(14, f'Find the highest number of k-mers in blocks of length {interval}')
 
         sequence = str(genome_vc.seq)
-        result = find_clump(sequence, interval , 8)
+        result = find_clump(sequence, interval, 8)
         max9mer = 0
         for r in result:
             if r[1] > max9mer:
@@ -396,7 +421,6 @@ def main():
 
     n1 = 1
 
-
     #
     # Page 27 Hamming distance
     #
@@ -415,38 +439,45 @@ def main():
     print(f'Hamming distance of {str1} and {str2} = {hamming_distance(str1, str2)}')
 
     #
-    # Page 28 Approximate match
+    # Page 28 Approximate pattern count
     #
 
-    print_header(28, 'Approximate match')
+    print_header(28, 'Approximate pattern count')
 
-    #print(approxiate_match('AACAAGCATAAACATTAAAGAG', 'AAAAA', 0))
+    # print(approximate_pattern_count('AACAAGCATAAACATTAAAGAG', 'AAAAA', 0))
 
     pattern = 'AAAAA'
     ham = 1
-    n, plist = approxiate_match('AACAAGCATAAACATTAAAGAG', pattern, ham)
-    print (f'There are {n} partial matches with hamming distance {ham}')
-    print (f'The matches are: {plist}\n')
+    n, plist = approximate_pattern_count('AACAAGCATAAACATTAAAGAG', pattern, ham)
+    print(f'There are {n} partial matches with hamming distance {ham}')
+    print(f'The matches are: {plist}\n')
 
-    pattern = 'AAAAA'
     ham = 2
-    n, plist = approxiate_match('AACAAGCATAAACATTAAAGAG', pattern, ham)
+    n, plist = approximate_pattern_count('AACAAGCATAAACATTAAAGAG', pattern, ham)
     print(f'There are {n} partial matches with hamming distance {ham}')
     print(f'The matches are: {plist}\n')
 
-    pattern = 'AAAAA'
     ham = 3
-    n, plist = approxiate_match('AACAAGCATAAACATTAAAGAG', pattern, ham)
+    n, plist = approximate_pattern_count('AACAAGCATAAACATTAAAGAG', pattern, ham)
     print(f'There are {n} partial matches with hamming distance {ham}')
     print(f'The matches are: {plist}\n')
 
-    pattern = 'AAAAA'
     ham = 4
-    n, plist = approxiate_match('AACAAGCATAAACATTAAAGAG', pattern, ham)
+    n, plist = approximate_pattern_count('AACAAGCATAAACATTAAAGAG', pattern, ham)
     print(f'There are {n} partial matches with hamming distance {ham}')
     print(f'The matches are: {plist}\n')
 
 
+    #
+    # Page 29 Frequent words with mismatches
+    #
+
+    print_header(29, 'Frequent words with mismatches')
+
+    frequent_words_with_mismatches('GACCATCAAAACTGATAAACTACTTAAAAATCAGT', 5, 1)
+    frequent_words_with_mismatches('GACCATCAAAACTGATAAACTACTTAAAAATCAGT', 5, 0)
+    frequent_words_with_mismatches('GACCATCAAAACTGATAAACTACTTAAAAATCAGT', 4, 0)
+    frequent_words_with_mismatches('GACCATCAAAACTGATAAACTACTTAAAAATCAGT', 3, 0)
 
 if __name__ == "__main__":
     main()
