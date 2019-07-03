@@ -178,12 +178,14 @@ def main():
     print(pattern_count("GACCATCAAAACTGATAAACTACTTAAAAATCAGT", "AA"))
     print('\n\n')
 
-
+    #
     # Find the occurence of kmers is
-    genome = SeqIO.read('ori.fasta.txt', 'fasta')
+    #
+
+    ori = SeqIO.read('ori.fasta.txt', 'fasta')
 
     k = 3
-    count, max_strings_found = frequent_words(str(genome.seq), k)
+    count, max_strings_found = frequent_words(str(ori.seq), k)
     print(f'The maximum time a {k}-kmer was found is {count}')
     print(f'The number of patterns for that maximum is {len(max_strings_found)}')
     print('The positions are:\n')
@@ -192,7 +194,7 @@ def main():
     print('\n')
 
     k = 5
-    count, max_strings_found = frequent_words(str(genome.seq), k)
+    count, max_strings_found = frequent_words(str(ori.seq), k)
     print(f'The maximum time a {k}-kmer was found is {count}')
     print(f'The number of patterns for that maximum is {len(max_strings_found)}')
     print('The positions are:\n\n')
@@ -201,7 +203,7 @@ def main():
     print('\n')
 
     k = 7
-    count, max_strings_found = frequent_words(str(genome.seq), k)
+    count, max_strings_found = frequent_words(str(ori.seq), k)
     print(f'The maximum time a {k}-kmer was found is {count}')
     print(f'The number of patterns for that maximum is {len(max_strings_found)}')
     print('The positions are:\n\n')
@@ -211,7 +213,7 @@ def main():
 
 
     k = 9
-    count, max_strings_found = frequent_words(str(genome.seq), k)
+    count, max_strings_found = frequent_words(str(ori.seq), k)
     print(f'The maximum time a {k}-kmer was found is {count}')
     print(f'The number of patterns for that maximum is {len(max_strings_found)}')
     print('The positions are:\n\n')
