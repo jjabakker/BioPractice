@@ -3,6 +3,7 @@ from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq, MutableSeq
 
 
+
 class CodeTable:
 
     GeneticCode = {"UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
