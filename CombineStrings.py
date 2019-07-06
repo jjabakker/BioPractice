@@ -1,15 +1,13 @@
 import random
 import copy
 
-# Test
-
 #
 # The function tries to get a maximum string length
 #
 # If there are multiple overlaps, the longest overlap will be chosen, not necessarily leading to the
 # longest combined string
 #
-# The return consists of four parametrs
+# The return consists of four parameters
 #
 #       Int: The number cof overlap solutions (1, 2 or 3)
 #       Int: The length of the overlap
